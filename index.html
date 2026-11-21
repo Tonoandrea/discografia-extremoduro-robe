@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discografía de Extremoduro y Robe</title>
+<style>
+  :root{
+    --fondo:#16120f; --tarjeta:#231c17; --texto:#f5efe6; --suave:#cbbfae;
+    --extremo:#e0453a; --robe:#e8b04a; --ok:#5fbf77; --borde:#3a3029;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,"Times New Roman",serif;font-size:20px;line-height:1.5}
+  header{padding:28px 20px 10px;text-align:center}
+  h1{margin:0 0 6px;font-size:1.9em;letter-spacing:.5px}
+  .sub{color:var(--suave);margin:0}
+  .contador{margin:18px auto 0;max-width:640px;background:var(--tarjeta);
+    border:2px solid var(--borde);border-radius:14px;padding:14px 18px;font-size:1.15em}
+  .barra{height:14px;background:#3a3029;border-radius:8px;overflow:hidden;margin-top:10px}
+  .barra span{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+  .filtros{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 12px}
+  button{font:inherit;font-size:.95em;cursor:pointer;border-radius:12px;
+    padding:12px 20px;min-height:52px;border:2px solid var(--borde);
+    background:var(--tarjeta);color:var(--texto)}
+  button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .filtros button[aria-pressed="true"]{background:var(--texto);color:var(--fondo);border-color:var(--texto)}
+  .leyenda{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;color:var(--suave);font-size:.95em}
+  .punto{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:6px;vertical-align:-2px}
+  main{max-width:760px;margin:10px auto 40px;padding:0 16px;position:relative}
+  .linea{position:absolute;left:34px;top:0;bottom:0;width:4px;background:var(--borde);border-radius:2px}
+  .disco{position:relative;margin:0 0 22px 64px}
+  .disco::before{content:"";position:absolute;left:-40px;top:24px;width:20px;height:20px;
+    border-radius:50%;background:var(--c);border:4px solid var(--fondo)}
+  .anio{font-weight:bold;color:var(--c);font-size:1.05em}
+  .tarjeta{background:var(--tarjeta);border:2px solid var(--borde);border-left:8px solid var(--c);
+    border-radius:14px;overflow:hidden}
+  .cabeza{width:100%;text-align:left;border:0;border-radius:0;background:transparent;
+    padding:16px 18px;display:flex;gap:14px;align-items:center}
+  .vinilo{flex:none;width:58px;height:58px;border-radius:50%;
+    background:radial-gradient(circle,var(--c) 0 18%,#111 19% 22%,#222 23% 40%,#111 41% 44%,#222 45% 70%,#111 71%)}
+  .titulo{font-size:1.2em;font-weight:bold;display:block}
+  .meta{color:var(--suave);font-size:.9em}
+  .flecha{margin-left:auto;font-size:1.3em;transition:transform .2s}
+  .abierta .flecha{transform:rotate(180deg)}
+  .detalle{display:none;padding:0 18px 18px;border-top:1px solid var(--borde)}
+  .abierta .detalle{display:block}
+  .detalle p{margin:14px 0}
+  .acciones{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .yt{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:bold;
+    background:#c4302b;color:#fff;border-radius:12px;padding:12px 18px;min-height:52px}
+  label.check{display:inline-flex;align-items:center;gap:10px;cursor:pointer;
+    padding:10px 14px;border:2px solid var(--borde);border-radius:12px;min-height:52px}
+  label.check input{width:28px;height:28px;accent-color:var(--ok)}
+  .escuchado .tarjeta{box-shadow:0 0 0 2px var(--ok) inset}
+  .sello{display:none;color:var(--ok);font-weight:bold;font-size:.9em}
+  .escuchado .sello{display:inline}
+  .copia{max-width:760px;margin:0 auto 50px;padding:20px;background:var(--tarjeta);
+    border:2px solid var(--borde);border-radius:14px}
+  .copia h2{margin-top:0;font-size:1.3em}
+  textarea{width:100%;min-height:110px;font-size:.85em;font-family:monospace;border-radius:10px;
+    padding:10px;background:#0f0c0a;color:var(--texto);border:2px solid var(--borde)}
+  .fila{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+  #aviso{min-height:1.5em;color:var(--ok);font-weight:bold}
+  footer{text-align:center;color:var(--suave);font-size:.85em;padding:0 16px 30px}
+  @media (max-width:520px){
+    body{font-size:18px}
+    .linea{left:20px}.disco{margin-left:44px}.disco::before{left:-34px}
+    .vinilo{width:46px;height:46px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎸 Extremoduro y Robe</h1>
+  <p class="sub">Línea del tiempo de su discografía</p>
+  <div class="contador" aria-live="polite">
+    <div id="textoContador">Has escuchado 0 de 0 discos</div>
+    <div class="barra"><span id="barra"></span></div>
+  </div>
+</header>
+
+<div class="filtros" role="group" aria-label="Filtrar discos">
+  <button data-f="todos" aria-pressed="true">Todos</button>
+  <button data-f="Extremoduro" aria-pressed="false">Solo Extremoduro</button>
+  <button data-f="Robe" aria-pressed="false">Solo Robe</button>
+  <button data-f="pendientes" aria-pressed="false">Sin escuchar</button>
+</div>
+<div class="leyenda">
+  <span><span class="punto" style="background:var(--extremo)"></span>Extremoduro</span>
+  <span><span class="punto" style="background:var(--robe)"></span>Robe en solitario</span>
+</div>
+
+<main>
+  <div class="linea" aria-hidden="true"></div>
+  <div id="lista"></div>
+</main>
+
+<section class="copia">
+  <h2>💾 Copia de seguridad</h2>
+  <p>Guarda qué discos tienes marcados, por si cambias de navegador o de ordenador.</p>
+  <div class="fila">
+    <button id="exportar">Crear copia</button>
+    <button id="copiar">Copiar texto</button>
+    <button id="descargar">Descargar archivo</button>
+  </div>
+  <textarea id="cajaCopia" aria-label="Texto de la copia de seguridad" placeholder="Aquí aparecerá la copia. También puedes pegar aquí una copia anterior y pulsar «Importar texto»."></textarea>
+  <div class="fila">
+    <button id="importarTexto">Importar texto</button>
+    <label class="check">📂 Importar archivo <input type="file" id="archivo" accept=".json,application/json" style="width:auto;height:auto"></label>
+  </div>
+  <div id="aviso" role="status"></div>
+</section>
+
+<footer>Datos de discos contrastados con varias fuentes (tiendas musicales y prensa). Los vídeos se abren en YouTube.</footer>
+
+<script>
+const DISCOS = [
+  {id:"rock-transgresivo", a:"Extremoduro", t:"Rock transgresivo", y:1989, tipo:"Estudio",
+   d:"Su primer disco. Nació de la maqueta «Tú en tu casa, nosotros en la hoguera», que Robe pagó vendiendo bonos por adelantado entre amigos y conocidos."},
+  {id:"somos-unos-animales", a:"Extremoduro", t:"Somos unos animales", y:1991, tipo:"Estudio",
+   d:"Segundo disco de la banda. Rock crudo y directo, propio de su primera etapa."},
+  {id:"deltoya", a:"Extremoduro", t:"Deltoya", y:1992, tipo:"Estudio",
+   d:"Primer disco con el sello DRO. Colaboraron Salvador Domínguez (ex-Tequila) y el argentino Ariel Rot."},
+  {id:"donde-estan-mis-amigos", a:"Extremoduro", t:"¿Dónde están mis amigos?", y:1993, tipo:"Estudio",
+   d:"Disco de desamor y dolor. Aquí apareció por primera vez «Bribriblibli»."},
+  {id:"pedra", a:"Extremoduro", t:"Pedrá", y:1995, tipo:"Estudio",
+   d:"Un disco muy especial: es una sola canción larga, de casi media hora."},
+  {id:"agila", a:"Extremoduro", t:"Agila", y:1996, tipo:"Estudio",
+   d:"El disco que los hizo famosos en toda España."},
+  {id:"canciones-prohibidas", a:"Extremoduro", t:"Canciones prohibidas", y:1998, tipo:"Estudio",
+   d:"Séptimo disco de estudio, publicado en septiembre de 1998. Suma vientos, cuerdas y arreglos más trabajados."},
+  {id:"yo-minoria-absoluta", a:"Extremoduro", t:"Yo, minoría absoluta", y:2002, tipo:"Estudio",
+   d:"Sonido más cuidado, con piano e instrumentos de viento."},
+  {id:"la-ley-innata", a:"Extremoduro", t:"La ley innata", y:2008, tipo:"Estudio",
+   d:"Muchos lo consideran su obra maestra. Está planteado como una gran obra en varios movimientos, como una sinfonía de rock."},
+  {id:"material-defectuoso", a:"Extremoduro", t:"Material defectuoso", y:2011, tipo:"EP",
+   d:"Disco corto de 6 canciones que suman unos 43 minutos."},
+  {id:"para-todos-los-publicos", a:"Extremoduro", t:"Para todos los públicos", y:2013, tipo:"Estudio",
+   d:"Su último disco de estudio. Incluye «Qué borde era mi valle»."},
+  {id:"lo-que-aletea", a:"Robe", t:"Lo que aletea en nuestras cabezas", y:2015, tipo:"Estudio",
+   d:"El debut de Robe en solitario: rock con aire sinfónico y muy poético."},
+  {id:"destrozares", a:"Robe", t:"Destrozares, canciones para el final de los tiempos", y:2016, tipo:"Estudio",
+   d:"Segundo disco en solitario. Sigue el camino del primero, más íntimo y elaborado."},
+  {id:"bienvenidos-al-temporal", a:"Robe", t:"Bienvenidos al temporal", y:2018, tipo:"En directo",
+   d:"Disco grabado en concierto con su banda en solitario."},
+  {id:"mayeutica", a:"Robe", t:"Mayéutica", y:2021, tipo:"Estudio",
+   d:"Publicado en abril de 2021. Está dividido en movimientos, como «Segundo movimiento: Mierda de filosofía»."},
+  {id:"se-nos-lleva-el-aire", a:"Robe", t:"Se nos lleva el aire", y:2023, tipo:"Estudio",
+   d:"Publicado en diciembre de 2023. Es su último disco de estudio."}
+];
+const CLAVE = "discografia-robe-extremoduro";
+let escuchados = {};
+try { escuchados = JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch(e) {}
+let filtro = "todos";
+
+function guardar(){ try{ localStorage.setItem(CLAVE, JSON.stringify(escuchados)); }catch(e){} }
+function color(a){ return a==="Robe" ? "var(--robe)" : "var(--extremo)"; }
+function aviso(t){ const el=document.getElementById("aviso"); el.textContent=t; setTimeout(()=>{ if(el.textContent===t) el.textContent=""; },5000); }
+
+function pintar(){
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+  DISCOS.forEach(dk=>{
+    const oido = !!escuchados[dk.id];
+    if(filtro==="Extremoduro"||filtro==="Robe"){ if(dk.a!==filtro) return; }
+    if(filtro==="pendientes" && oido) return;
+    const div = document.createElement("div");
+    div.className = "disco" + (oido?" escuchado":"");
+    div.style.setProperty("--c", color(dk.a));
+    const q = encodeURIComponent(dk.a + " " + dk.t + " disco completo");
+    div.innerHTML = `
+      <div class="anio">${dk.y}</div>
+      <div class="tarjeta">
+        <button class="cabeza" aria-expanded="false">
+          <span class="vinilo" aria-hidden="true"></span>
+          <span><span class="titulo">${dk.t}</span>
+          <span class="meta">${dk.a} · ${dk.tipo} <span class="sello">· ✔ Escuchado</span></span></span>
+          <span class="flecha" aria-hidden="true">▾</span>
+        </button>
+        <div class="detalle">
+          <p>${dk.d}</p>
+          <div class="acciones">
+            <a class="yt" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">▶ Buscar en YouTube</a>
+            <label class="check"><input type="checkbox" ${oido?"checked":""}> Ya lo he escuchado</label>
+          </div>
+        </div>
+      </div>`;
+    const tarjeta = div.querySelector(".tarjeta");
+    const cab = div.querySelector(".cabeza");
+    cab.addEventListener("click",()=>{
+      const ab = tarjeta.classList.toggle("abierta");
+      cab.setAttribute("aria-expanded", ab);
+    });
+    div.querySelector("input").addEventListener("change", e=>{
+      if(e.target.checked) escuchados[dk.id]=true; else delete escuchados[dk.id];
+      guardar(); div.classList.toggle("escuchado", e.target.checked); contar();
+      if(filtro==="pendientes") setTimeout(pintar,600);
+    });
+    lista.appendChild(div);
+  });
+  if(!lista.children.length) lista.innerHTML = '<p style="margin-left:64px">🎉 ¡No queda ninguno! Los has escuchado todos.</p>';
+  contar();
+}
+function contar(){
+  const n = DISCOS.filter(d=>escuchados[d.id]).length;
+  document.getElementById("textoContador").textContent = `Has escuchado ${n} de ${DISCOS.length} discos`;
+  document.getElementById("barra").style.width = (n/DISCOS.length*100)+"%";
+}
+document.querySelectorAll(".filtros button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    filtro=b.dataset.f;
+    document.querySelectorAll(".filtros button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    pintar();
+  });
+});
+
+// Copia de seguridad
+function textoCopia(){ return JSON.stringify({app:CLAVE, fecha:new Date().toISOString().slice(0,10), escuchados}, null, 1); }
+document.getElementById("exportar").onclick = ()=>{ document.getElementById("cajaCopia").value = textoCopia(); aviso("Copia creada. Cópiala o descárgala."); };
+document.getElementById("copiar").onclick = async ()=>{
+  const caja = document.getElementById("cajaCopia");
+  if(!caja.value) caja.value = textoCopia();
+  try{ await navigator.clipboard.writeText(caja.value); aviso("Texto copiado. Pégalo en una nota o un correo."); }
+  catch(e){ caja.select(); aviso("Selecciona el texto de la caja y cópialo con Ctrl+C."); }
+};
+document.getElementById("descargar").onclick = ()=>{
+  try{
+    const blob = new Blob([textoCopia()], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "copia-discografia-" + new Date().toISOString().slice(0,10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    aviso("Si no se descarga aquí, usa «Copiar texto».");
+  }catch(e){ aviso("No se pudo descargar aquí. Usa «Copiar texto»."); }
+};
+function importar(txt){
+  try{
+    const datos = JSON.parse(txt);
+    if(!datos || typeof datos.escuchados!=="object") throw 0;
+    escuchados = {};
+    DISCOS.forEach(d=>{ if(datos.escuchados[d.id]) escuchados[d.id]=true; });
+    guardar(); pintar(); aviso("Copia recuperada correctamente.");
+  }catch(e){ aviso("Ese texto no parece una copia válida de esta página."); }
+}
+document.getElementById("importarTexto").onclick = ()=> importar(document.getElementById("cajaCopia").value);
+document.getElementById("archivo").onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader(); r.onload = ()=> importar(r.result); r.readAsText(f);
+};
+pintar();
+</script>
+</body>
+</html>
